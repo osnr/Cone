@@ -1,33 +1,33 @@
 function runMobile() {
+  const intrinsics = [
+    [1582.8649, 0.0, 0.0],
+    [0.0, 1582.8649, 0.0],
+    [936.13824, 716.9852, 1.0]
+  ];
+
   const video = document.createElement("video");
   document.body.appendChild(video);
-  const qrScanner = new QrScanner(video,
-                                  result => console.log('decoded qr code:', result));
+  const qrScanner = new QrScanner(video, result => {
+    document.getElementById("out").innerText = JSON.stringify(result);
+
+    window.send(JSON.stringify(result.cornerPoints));
+
+    // TODO: do pose estimation, given physical size of tag, report that instead
+
+  }, { returnDetailedScanResult: true });
   qrScanner.start();
-  // 
-  // 
-  //   
-  //   async function getCamera() {
-  //     // Prefer camera resolution nearest to 1280x720 - just as calibdb does
-  //     let constraints = { audio: false, video: { width: 1280, height: 720, facingMode: "environment", resizeMode: "none" } }
-  // 
-  //     let mediaStream = await navigator.mediaDevices.getUserMedia(constraints)
-  //     const track = mediaStream.getVideoTracks()[0]
-  //     const cfg = track.getSettings()
-  // 
-  //     return [track.label, [cfg.width, cfg.height]]
-  //   }
-  //   getCamera().then(args => {
-  //     document.getElementById("out").innerText = JSON.stringify(args);
-  //   });
 
-  // Run QR code detector, localize-ish, produce cone
-  
+  // WebSocket
+  var socket = new WebSocket("wss://" + window.location.host + "/wsMobile");
+  window.send = (pose) => {};
+  socket.onopen = function () {
+    window.send = (pose) => { socket.send(pose); };
+    //      output.innerHTML += "Status: Connected\n";
+  };
+  socket.onmessage = function (e) {
+    //      output.innerHTML += "\nServer: " + e.data + "\n";
+  };
+  // TODO: Get accelerometer
 
-  // Get accelerometer
-
-  // TODO: Connect websocket
-  // - on phone
-
-  // Dynamic calibration
+  // Dynamic calibration (best fit)
 }

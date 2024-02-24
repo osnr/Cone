@@ -40,20 +40,22 @@ func main() {
 		}
 	})
 
-	http.HandleFunc("/wsPhone", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/wsMobile", func(w http.ResponseWriter, r *http.Request) {
 		// Upgrade upgrades the HTTP server connection to the WebSocket protocol.
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			log.Print("wsPhone: upgrade failed: ", err)
+			log.Print("wsMobile: upgrade failed: ", err)
 			return
 		}
 		defer conn.Close()
+
+		log.Print("wsMobile: connection ready")
 
 		// Continuosly read and write message
 		for {
 			mt, message, err := conn.ReadMessage()
 			if err != nil {
-				log.Println("wsPhone: read failed:", err)
+				log.Println("wsMobile: read failed:", err)
 				break
 			}
 			input := string(message)
