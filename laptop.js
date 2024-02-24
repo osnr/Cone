@@ -1,4 +1,7 @@
 function runLaptop() {
+  window.phoneElements = {};
+  window.phonePositions = {};
+
   const output =   document.getElementById("out");
   document.getElementById("out").innerText = "LAPTOP";
 
@@ -14,8 +17,8 @@ function runLaptop() {
     console.log("Connected");
   };
   socket.onmessage = function (e) {
-    console.log("Got message", e.data);
-    output.innerText = "LAPTOP Server: " + e.data + "\n";
+    // output.innerText = "LAPTOP Server: " + e.data + "\n";
+    phonePositions = JSON.parse(e.data);
   };
 
   // QR code. Just to make it easy for ppl to visit rn.
@@ -30,4 +33,32 @@ function runLaptop() {
   apriltagEl.width = 338; apriltagEl.height = 338;
   apriltagEl.style.imageRendering = "crisp-edges";
   apriltagEl.src = "vendor/tag36_11_00005.png";
+
+  window.requestAnimationFrame(function frame() {
+    for (const [key, position] of Object.entries(window.phonePositions)) {
+      let el;
+      if (key in window.phoneElements) {
+        el = window.phoneElements[key];
+      } else {
+        el = document.createElement("div");
+        el.style.position = "fixed";
+        el.style.width = "100px";
+        el.style.height = "100px";
+        el.style.backgroundColor = "blue";
+        el.style.top = 0;
+        el.style.left = 0;
+        document.body.appendChild(el);
+        window.phoneElements[key] = el;
+      }
+
+      const x = position.t[0] * 100;
+      const y = position.t[1] * 100;
+      const scale = position.t[2];
+      el.style.transform = `translate(${x}px,${y}px) scale(${scale})`;
+    }
+
+    
+
+    window.requestAnimationFrame(frame);
+  });
 }
