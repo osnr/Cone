@@ -4,6 +4,8 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strings"
+	"time"
 )
 
 var upgrader = websocket.Upgrader{}
@@ -13,7 +15,7 @@ func main() {
 	http.Handle("/", fs)
 
 	var phonePositions map[string]string = make(map[string]string)
-	phonePositions["hello"] = "wow"
+	// phonePositions["hello"] = "wow"
 
 	http.HandleFunc("/wsLaptop", func(w http.ResponseWriter, r *http.Request) {
 		// Upgrade upgrades the HTTP server connection to the WebSocket protocol.
@@ -28,15 +30,21 @@ func main() {
 
 		// Continuosly write message
 		for {
-			// TODO: Delay?
-			// TODO: Get lookup table of phone positions
-			output := "Nice!"
+			var entries []string
+			for key, position := range phonePositions {
+				entries = append(entries, "\""+key+"\": "+position)
+			}
+			output := "{" + strings.Join(entries, ",") + "}"
+			// log.Println("output", output)
+
 			message := []byte(output)
 			err = conn.WriteMessage(websocket.TextMessage, message)
 			if err != nil {
 				log.Println("wsLaptop: write failed:", err)
 				break
 			}
+
+			time.Sleep(10 * time.Millisecond)
 		}
 	})
 
@@ -49,28 +57,26 @@ func main() {
 		}
 		defer conn.Close()
 
-		log.Print("wsMobile: connection ready")
+		key := conn.RemoteAddr().String()
+		log.Print("wsMobile: connection ready: ", key)
 
 		// Continuosly read and write message
 		for {
-			mt, message, err := conn.ReadMessage()
+			_, message, err := conn.ReadMessage()
 			if err != nil {
 				log.Println("wsMobile: read failed:", err)
 				break
 			}
-			input := string(message)
-			log.Println("wsPhone: got input:", input)
+			phonePositions[key] = string(message)
 
-			// TODO: Update some table of positions (what
-			// is a position?)
-			output := "ok"
+			// output := "ok"
 
-			message = []byte(output)
-			err = conn.WriteMessage(mt, message)
-			if err != nil {
-				log.Println("wsPhone: write failed:", err)
-				break
-			}
+			// message = []byte(output)
+			// err = conn.WriteMessage(mt, message)
+			// if err != nil {
+			// 	log.Println("wsPhone: write failed:", err)
+			// 	break
+			// }
 		}
 	})
 
