@@ -31,8 +31,10 @@ function runLaptop() {
   document.body.appendChild(apriltagEl);
   // 338px experimentally is 2.125in (height of credit card) on my laptop.
   apriltagEl.width = 338; apriltagEl.height = 338;
-  apriltagEl.style.imageRendering = "crisp-edges";
-  apriltagEl.src = "vendor/tag36_11_00005.png";
+  // apriltagEl.style.imageRendering = "crisp-edges";
+  apriltagEl.style.position = "absolute";
+  apriltagEl.style.zIndex = 1000;
+  apriltagEl.src = "vendor/tag36_11_00005_big.png";
 
   window.requestAnimationFrame(function frame() {
     for (const [key, position] of Object.entries(window.phonePositions)) {
@@ -51,13 +53,11 @@ function runLaptop() {
         window.phoneElements[key] = el;
       }
 
-      const x = position.t[0] * 100;
-      const y = position.t[1] * 100;
-      const scale = position.t[2];
+      const x = 500 - position.t[0] * 1000;
+      const y = 500 - position.t[1] * 1000;
+      const scale = position.t[2] * 3;
       el.style.transform = `translate(${x}px,${y}px) scale(${scale})`;
     }
-
-    
 
     window.requestAnimationFrame(frame);
   });
