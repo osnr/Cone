@@ -57,9 +57,11 @@ func main() {
 			log.Print("wsMobile: upgrade failed: ", err)
 			return
 		}
-		defer conn.Close()
 
 		key := conn.RemoteAddr().String()
+		defer phonePositions.Delete(key)
+		defer conn.Close()
+
 		log.Print("wsMobile: connection ready: ", key)
 
 		// Continuosly read and write message
@@ -82,5 +84,5 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(":9000", nil)
+	log.Fatal(http.ListenAndServe(":9000", nil))
 }

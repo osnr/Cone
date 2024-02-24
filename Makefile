@@ -1,3 +1,3 @@
 run:
 	rsync --delete -a . lanette:/root/cone
-	ssh lanette -- 'cd cone; go run server.go'
+	ssh lanette -- 'killall server; cd cone; go run server.go'
