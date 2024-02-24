@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -14,7 +15,7 @@ func main() {
 	fs := http.FileServer(http.Dir("."))
 	http.Handle("/", fs)
 
-	var phonePositions map[string]string = make(map[string]string)
+	var phonePositions sync.Map
 	// phonePositions["hello"] = "wow"
 
 	http.HandleFunc("/wsLaptop", func(w http.ResponseWriter, r *http.Request) {
@@ -31,9 +32,10 @@ func main() {
 		// Continuosly write message
 		for {
 			var entries []string
-			for key, position := range phonePositions {
-				entries = append(entries, "\""+key+"\": "+position)
-			}
+			phonePositions.Range(func(key, position interface{}) bool {
+				entries = append(entries, "\""+key.(string)+"\": "+position.(string))
+				return true
+			})
 			output := "{" + strings.Join(entries, ",") + "}"
 			// log.Println("output", output)
 
@@ -67,7 +69,7 @@ func main() {
 				log.Println("wsMobile: read failed:", err)
 				break
 			}
-			phonePositions[key] = string(message)
+			phonePositions.Store(key, string(message))
 
 			// output := "ok"
 

@@ -15,7 +15,7 @@ function runLaptop() {
   };
   socket.onmessage = function (e) {
     console.log("Got message", e.data);
-    output.innerHTML += "\nServer: " + e.data + "\n";
+    output.innerText = "LAPTOP Server: " + e.data + "\n";
   };
 
   // QR code. Just to make it easy for ppl to visit rn.
