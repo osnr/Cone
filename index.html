@@ -1,6 +1,7 @@
 <html>
   <body>
     <div id="out"></div>
+    <script src="vendor/qrcode.js"></script>
     <script>
      window.mobileCheck = function() {
   let check = false;
@@ -22,24 +23,46 @@
        getCamera().then(args => {
          document.getElementById("out").innerText = JSON.stringify(args);
        });
+
+       // Run QR code detector, localize-ish, produce cone
+
+       // Get accelerometer
+
+       // TODO: Connect websocket
+       // - on phone
+
+       // Dynamic calibration
+
      } else {
        // Laptop code path:
        document.getElementById("out").innerText = "LAPTOP";
+
+       if (window.location.protocol !== "https:") {
+         document.getElementById("out").innerText = "Error: should be on HTTPS";
+         throw new Exception();
+       }
+       var socket = new WebSocket("wss://" + window.location.host + "/wsLaptop");
+       // On laptop:
+       // TODO: Generate QR code of self? Check if https
+       // TODO: Allow specifying physical size of QR code
+       socket.onopen = function () {
+         //      output.innerHTML += "Status: Connected\n";
+       };
+       socket.onmessage = function (e) {
+         //      output.innerHTML += "\nServer: " + e.data + "\n";
+       };
+
+       // Connect websocket
+
+
+
+       // Generate QR code
+       const qrcodeEl = document.createElement("div");
+       document.body.appendChild(qrcodeEl);
+       const qrcode = new QRCode(qrcodeEl, window.location.href);
      }
 
-     // On laptop:
-     // TODO: Generate QR code of self?
-     // TODO: Allow specifying physical size of QR code
 
-     // TODO: Neeed to run on https to get camera access?
-
-     // Run QR code detector, localize-ish, produce cone
-
-     // Get accelerometer
-
-     // TODO: Connect websocket
-     // - on laptop
-     // - on phone
     </script>
   </body>
 </html>

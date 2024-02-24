@@ -9,9 +9,8 @@ import (
 var upgrader = websocket.Upgrader{}
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
+	fs := http.FileServer(http.Dir("."))
+	http.Handle("/", fs)
 
 	var phonePositions map[string]string = make(map[string]string)
 	phonePositions["hello"] = "wow"
@@ -24,6 +23,8 @@ func main() {
 			return
 		}
 		defer conn.Close()
+
+		log.Print("wsLaptop: connection ready")
 
 		// Continuosly write message
 		for {
